@@ -7,7 +7,7 @@ let listeners = [];
 let actions = {};
 
 //generic custom hook
-export const useStore = () => {
+export const useStore = (shouldListen = true) => {
   const setState = useState(globalState)[1];
 
   //this is ust like the redux
@@ -23,12 +23,17 @@ export const useStore = () => {
 
   //this is ran only once when a component is mounted, setState never changes, so it will be run onec when it is mounted and cleaned up when it is unmounted
   useEffect(() => {
-    listeners.push(setState);
+    if (shouldListen) {
+      listeners.push(setState);
+    }
+
     //cleanup function to make sure that when component is unmount the listener is removed
     return () => {
-      listeners = listeners.filter((li) => li !== setState);
+      if (shouldListen) {
+        listeners = listeners.filter((li) => li !== setState);
+      }
     };
-  }, [setState]);
+  }, [setState, shouldListen]);
 
   return [globalState, dispatch];
 };
